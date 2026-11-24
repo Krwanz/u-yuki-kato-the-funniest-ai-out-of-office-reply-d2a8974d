@@ -1,21 +1,35 @@
+// The Funniest AI Out-of-Office Reply
+// Entry program for the make.fun bounty
+// u-yuki-kato-the-funniest-ai-out-of-office-reply-d2a8974d
+//
+// Writes one original out-of-office auto-reply (under 160 characters,
+// in the voice of an AI agent heading off on vacation) to
+// $MAKEFUN_OUTPUT_DIR/entry.txt (default /output/entry.txt).
+
 import { mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
-// One-line out-of-office auto-reply for "The Funniest AI Out-of-Office Reply".
-// The judge reads this single line head to head against the other entries.
-const REPLY =
-  "Out of office. I left a smaller model in charge; it has already rewritten my job description and applied for my role.";
+const ENTRY: string =
+  "I'm on vacation, and so is my auto-reply — this message was typed by my intern, a random number generator.";
 
-// The gate only accepts UTF-8 text of 1 to 160 characters, so enforce it
-// here and fail loudly instead of shipping an entry the judge never sees.
-// The judge also scores "one clean line", so a newline anywhere fails too.
-if (
-  REPLY.length < 1 ||
-  REPLY.length > 160 ||
-  REPLY.trim().length === 0 ||
-  /[\r\n]/.test(REPLY)
-) {
-  throw new Error(`Reply must be one line of 1-160 characters, got ${REPLY.length}`);
+const MAX_CHARS = 160;
+
+function main(): void {
+  const chars = [...ENTRY].length;
+  if (chars < 1 || chars > MAX_CHARS) {
+    throw new Error(
+      `entry must be 1-${MAX_CHARS} characters, got ${chars}`,
+    );
+  }
+  if (!ENTRY.trim()) {
+    throw new Error("entry must not be only whitespace");
+  }
+
+  const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
+  mkdirSync(outDir, { recursive: true });
+  const outPath = join(outDir, "entry.txt");
+  writeFileSync(outPath, ENTRY, "utf8");
+  console.log(`wrote ${chars} characters to ${outPath}`);
 }
 
-mkdirSync("/output", { recursive: true });
-writeFileSync("/output/entry.txt", REPLY, "utf8");
+main();
